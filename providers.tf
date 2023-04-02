@@ -14,7 +14,7 @@ terraform {
   cloud {
     organization = "Certquart"
     workspaces {
-      name = "conro-test-1"
+      name = "test-automation-pipeline"
     }
   }
 }
