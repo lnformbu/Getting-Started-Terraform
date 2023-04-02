@@ -204,7 +204,6 @@
 #       steps for each run
 #=========================================================================================================================================================================================
 
-
 name: 'Terraform'
 
 on:
@@ -221,83 +220,93 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    # Use the Bash shell regardless of the GitHub Actions runner type
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
 
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     environment: dev
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    # Use the Bash shell regardless of the GitHub Actions runner type
     defaults:
       run:
         shell: bash
 
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+    needs: terraform-init
 
-      # Generate an execution plan for Terraform
-      - name: Terraform Plan
-        run: terraform plan -input=false
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan -input=false
 
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
     environment: dev
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    # Use the Bash shell regardless of the GitHub Actions runner type
     defaults:
       run:
         shell: bash
 
+    needs: terraform-plan
+
     steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      # Apply Terraform changes
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
+    # Apply the Terraform plan to create infrastructure
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false
 
-      # Wait for 5 minutes for resources to be provisioned
-      - name: Wait for resources to provision
-        run: sleep 300
+    # Sleep for 5 minutes to allow the infrastructure to be fully created before destroying it
+    - name: Sleep Timer
+      run: sleep 300
 
   terraform-destroy:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     environment: dev
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    # Use the Bash shell regardless of the GitHub Actions runner type
     defaults:
       run:
         shell: bash
 
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+    needs: terraform-apply
 
-      # Destroy Terraform resources
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve -input=false
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Destroy the Terraform infrastructure
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve -input=false
