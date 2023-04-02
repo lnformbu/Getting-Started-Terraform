@@ -27,7 +27,7 @@ module "ec2_instances" {
   count   = 3
 
 
-  name = format("my-ec2-cluster-%s-%d", "test", count.index)
+  name = format("my-ec2-%s-%d", "test", count.index)
 
   ami                    = var.instance_ami
   instance_type          = var.instance_type
