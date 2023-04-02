@@ -28,8 +28,8 @@ module "ec2_instances" {
 
   name = "my-ec2-cluster"
 
-  ami                    = var.instance_ami
-  instance_type          = var.instance_type
+  ami                    = "ami-00c39f71452c08778"
+  instance_type          = "t2.micro"
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
 
