@@ -147,7 +147,7 @@ permissions:
 
 jobs:
   terraform:
-    name: 'Terraform-build-apply'
+    name: 'Terraform-init'
     runs-on: ubuntu-latest
     environment: production
 
@@ -175,10 +175,64 @@ jobs:
     - name: Terraform Format
       run: terraform fmt -check
 
+  terraform-plan:
+    name: 'Terraform-plan'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    # Use the Bash shell regardless of the GitHub Actions runner type
+    defaults:
+      run:
+        shell: bash
+
+    needs: terraform
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false
 
+
+  terraform-apply:
+    name: 'Terraform-apply'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    # Use the Bash shell regardless of the GitHub Actions runner type
+    defaults:
+      run:
+        shell: bash
+
+    needs: terraform-plan
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
     # On push to "main", build or change infrastructure according to Terraform configuration files
     # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" r
     # equired status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
@@ -197,17 +251,26 @@ jobs:
       run:
         shell: bash
 
-    needs: terraform
+    needs: terraform-apply
 
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
 
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+      
     # Destroy the Terraform infrastructure
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
-
 
 
 
