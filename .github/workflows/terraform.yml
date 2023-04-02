@@ -204,6 +204,7 @@
 #       steps for each run
 #=========================================================================================================================================================================================
 
+
 name: 'Terraform'
 
 on:
@@ -218,13 +219,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    environment: production
-
-    strategy:
-      matrix:
-        terraform_run_name: [ "run1" ]
-        terraform_apply_name: [ "apply1" ]
-        terraform_destroy_name: [ "destroy1" ]
+    environment: dev
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -252,20 +247,54 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -input=false -var "run_name=${{ matrix.terraform_run_name }}"
+      run: terraform plan -input=false
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" r
+       equired status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false -var "run_name=${{ matrix.terraform_apply_name }}"
+     # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+
 
       #run terraform destory to clean up after
     - name: sleep timer
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+     # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: sleep 20
 
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+      
       #run terraform destory to clean up after
-    - name: Terraform Destroy
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform destroy -auto-approve -input=false -var "run_name=${{ matrix.terraform_destory_name }}"
+    - name: Terraform destroy
+     # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      run: terraform destroy -auto-approve -input=false
