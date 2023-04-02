@@ -43,3 +43,19 @@ variable "vpc_tags" {
     Environment = "dev"
   }
 }
+
+
+variable "instance_ami" {
+  description = "list of instance tpyes to select from"
+  type = list(string)
+  default = [ "ami-00c39f71452c08778", "ami-007855ac798b5175e" ]
+
+}
+
+
+variable "instance_type" {
+  description = "type of instance"
+  type = string
+  default = "t2.micro"
+
+}

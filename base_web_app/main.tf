@@ -24,12 +24,12 @@ module "vpc" {
 module "ec2_instances" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "4.3.0"
-  count   = 2
+  count   = 3
 
   name = "my-ec2-cluster"
 
-  ami                    = "ami-0c5204531f799e0c6"
-  instance_type          = "t2.micro"
+  ami                    = var.instance_ami
+  instance_type          = var.instance_type
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
 
