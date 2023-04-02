@@ -3,7 +3,8 @@ terraform {
 
   required_providers {
     aws = {
-      version = ">= 2.13.0"
+      source  = "hashicorp/aws"
+      version = "~> 4.49.0"
     }
     random = {
       version = ">= 2.1.2"
@@ -16,16 +17,19 @@ terraform {
       name = "conro-test-1"
     }
   }
-
 }
 
+
+
+#=================================================
 
 provider "aws" {
-  access_key = var.access_key
-  secret_key = var.secret_key
-  region = var.region
+  region = "us-east-1"
+
+  default_tags {
+    tags = {
+      hashicorp-learn = "module-use"
+    }
+  }
 }
-
-
-
 
