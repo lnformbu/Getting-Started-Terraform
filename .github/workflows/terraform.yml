@@ -183,14 +183,8 @@ jobs:
     # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" r
     # equired status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
-
-
-    # Run Terraform destroy to clean up after
-    - name: Terraform destroy
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform destroy -auto-approve -input=false
 
 
   terraform-destroy:
@@ -203,6 +197,8 @@ jobs:
       run:
         shell: bash
 
+    needs: terraform
+
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -211,6 +207,7 @@ jobs:
     # Destroy the Terraform infrastructure
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
+
 
 
 
