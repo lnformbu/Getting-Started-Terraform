@@ -33,3 +33,6 @@ provider "aws" {
   }
 }
 
+
+provider "random" {}
+

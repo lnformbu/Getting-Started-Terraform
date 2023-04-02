@@ -26,7 +26,8 @@ module "ec2_instances" {
   version = "4.3.0"
   count   = 3
 
-  name = "my-ec2-cluster"
+
+  name = format("my-ec2-cluster-%s-%d", element(random_string.instance_name, count.index % 3), count.index)
 
   ami                    = var.instance_ami
   instance_type          = var.instance_type
@@ -37,4 +38,11 @@ module "ec2_instances" {
     Terraform   = "true"
     Environment = "dev"
   }
+}
+
+resource "random_string" "instance_name" {
+  count   = 3
+  length  = 6
+  upper   = false
+  special = false
 }
