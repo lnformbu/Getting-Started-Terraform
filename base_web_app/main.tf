@@ -27,7 +27,7 @@ module "ec2_instances" {
   count   = 3
 
 
-  name = format("my-ec2-cluster-%s-%d", element(random_string.instance_name, count.index % 3), count.index)
+  name = format("my-ec2-cluster-%s-%d", "static", count.index)
 
   ami                    = var.instance_ami
   instance_type          = var.instance_type
@@ -40,9 +40,3 @@ module "ec2_instances" {
   }
 }
 
-resource "random_string" "instance_name" {
-  count   = 3
-  length  = 6
-  upper   = false
-  special = false
-}
