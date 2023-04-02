@@ -222,7 +222,9 @@ jobs:
 
     strategy:
       matrix:
-        terraform_run_name: [ "run1", "run2", "run3" ]
+        terraform_run_name: [ "run1" ]
+        terraform_apply_name: [ "apply1" ]
+        terraform_destroy_name: [ "destroy1" ]
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -256,7 +258,7 @@ jobs:
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false -var "run_name=${{ matrix.terraform_run_name }}"
+      run: terraform apply -auto-approve -input=false -var "run_name=${{ matrix.terraform_apply_name }}"
 
       #run terraform destory to clean up after
     - name: sleep timer
@@ -266,4 +268,4 @@ jobs:
       #run terraform destory to clean up after
     - name: Terraform Destroy
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform destroy -auto-approve -input=false -var "run_name=${{ matrix.terraform_run_name }}"
+      run: terraform destroy -auto-approve -input=false -var "run_name=${{ matrix.terraform_destory_name }}"
