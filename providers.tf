@@ -12,10 +12,10 @@ terraform {
   }
 
   cloud {
-    # organization = "Certquart"
-    # workspaces {
-    #   name = "conro-test-1"
-    # }
+    organization = "Certquart"
+    workspaces {
+      name = "conro-test-1"
+    }
   }
 }
 
