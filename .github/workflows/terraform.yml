@@ -147,7 +147,7 @@ permissions:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'Terraform-build-apply'
     runs-on: ubuntu-latest
     environment: production
 
@@ -183,21 +183,68 @@ jobs:
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" r
       # equired status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
 
 
-      #run terraform destory to clean up after
-    - name: sleep timer
-     # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: sleep 20
+    #   #run terraform destory to clean up after
+    # - name: sleep timer
+    #  # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+    #   run: sleep 200
 
-      #run terraform destory to clean up after
-    - name: Terraform destroy
-     # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+    #   #run terraform destory to clean up after
+    # - name: Terraform destroy
+    #  # if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+    #   run: terraform destroy -auto-approve -input=false
+
+jobs:
+  terraform:
+    name: 'Terraform-destroy-infra'
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Sleep for 5 minutes to allow the infrastructure to be fully created before destroying it
+    - name: Sleep Timer
+      run: sleep 300
+
+  terraform-destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    # Use the Bash shell regardless of the GitHub Actions runner type
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Destroy the Terraform infrastructure
+    - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
-
-
 
 
 #=========================================================================================================================================================================================
@@ -277,36 +324,36 @@ jobs:
 
 #     needs: terraform-plan
 
-#     steps:
-#     # Checkout the repository to the GitHub Actions runner
-#     - name: Checkout
-#       uses: actions/checkout@v3
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
 
-#     # Apply the Terraform plan to create infrastructure
-#     - name: Terraform Apply
-#       run: terraform apply -auto-approve -input=false
+  #   # Apply the Terraform plan to create infrastructure
+  #   - name: Terraform Apply
+  #     run: terraform apply -auto-approve -input=false
 
-#     # Sleep for 5 minutes to allow the infrastructure to be fully created before destroying it
-#     - name: Sleep Timer
-#       run: sleep 300
+  #   # Sleep for 5 minutes to allow the infrastructure to be fully created before destroying it
+  #   - name: Sleep Timer
+  #     run: sleep 300
 
-#   terraform-destroy:
-#     name: 'Terraform Destroy'
-#     runs-on: ubuntu-latest
-#     environment: dev
+  # terraform-destroy:
+  #   name: 'Terraform Destroy'
+  #   runs-on: ubuntu-latest
+  #   environment: dev
 
-#     # Use the Bash shell regardless of the GitHub Actions runner type
-#     defaults:
-#       run:
-#         shell: bash
+  #   # Use the Bash shell regardless of the GitHub Actions runner type
+  #   defaults:
+  #     run:
+  #       shell: bash
 
-#     needs: terraform-apply
+  #   needs: terraform-apply
 
-#     steps:
-#     # Checkout the repository to the GitHub Actions runner
-#     - name: Checkout
-#       uses: actions/checkout@v3
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
 
-#     # Destroy the Terraform infrastructure
-#     - name: Terraform Destroy
-#       run: terraform destroy -auto-approve -input=false
+  #   # Destroy the Terraform infrastructure
+  #   - name: Terraform Destroy
+  #     run: terraform destroy -auto-approve -input=false
